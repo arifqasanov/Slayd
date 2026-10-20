@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Əməli yaddaşın və prosessorun monitorinqi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;800&family=Manrope:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#14123a;--bg2:#1f1b5c;--ink:#fff7e6;--mut:#b9b5e6;--pink:#ff5d73;--mint:#3ef0c0;--sun:#ffd23f;--card:rgba(255,255,255,.07);color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font-family:"Manrope",system-ui,sans-serif}
+body{background:radial-gradient(circle at 20% 10%,var(--bg2),var(--bg) 60%);background-size:160% 160%;animation:bgm 14s ease-in-out infinite alternate}
+@keyframes bgm{to{background-position:100% 100%}}
+h1,h2{font-family:"Unbounded","Arial Black",sans-serif;line-height:1.15}
+#fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;opacity:.55}
+.slide{position:absolute;inset:0;display:none;padding:clamp(20px,4vw,56px) clamp(18px,6vw,90px) 84px;overflow-y:auto;align-content:center}
+.slide.active{display:grid;gap:18px}
+.slide.active.in{animation:swing .8s cubic-bezier(.2,1.3,.4,1)}
+@keyframes swing{from{opacity:0;transform:perspective(900px) rotateY(-35deg) scale(.85)}to{opacity:1;transform:none}}
+h2{font-size:clamp(28px,4.8vw,56px);color:var(--sun);animation:drop .7s cubic-bezier(.2,1.6,.4,1) both}
+h2::after{content:"";display:block;height:6px;width:0;margin-top:10px;border-radius:9px;background:linear-gradient(90deg,var(--pink),var(--mint));animation:line 1s .5s forwards}
+@keyframes line{to{width:min(260px,50%)}}
+@keyframes drop{from{opacity:0;transform:translateY(-60px) rotate(-3deg)}to{opacity:1;transform:none}}
+@keyframes pop{from{opacity:0;transform:scale(.3) rotate(-8deg)}to{opacity:1;transform:none}}
+@keyframes slideL{from{opacity:0;transform:translateX(-90px)}to{opacity:1;transform:none}}
+@keyframes slideR{from{opacity:0;transform:translateX(90px)}to{opacity:1;transform:none}}
+.a{animation:slideL .7s calc(.25s + var(--i,0)*.2s) cubic-bezier(.2,1.3,.4,1) both}
+.p{animation:pop .7s calc(.25s + var(--i,0)*.18s) cubic-bezier(.2,1.8,.4,1) both}
+.r{animation:slideR .7s calc(.25s + var(--i,0)*.2s) cubic-bezier(.2,1.3,.4,1) both}
+p,li{font-size:clamp(17px,2.2vw,26px);line-height:1.6;color:#efeaff;max-width:78ch}
+b{color:var(--mint)}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:18px}
+.card{background:var(--card);border:2px solid rgba(255,255,255,.16);border-radius:22px 6px 22px 6px;padding:20px;transition:transform .3s,border-color .3s}
+.card:hover{transform:translateY(-8px) rotate(-1.2deg);border-color:var(--sun)}
+.card h3{font-family:"Unbounded",sans-serif;font-size:clamp(18px,2.1vw,26px);color:var(--pink);margin-bottom:8px}
+.card p{font-size:clamp(16px,1.9vw,22px);line-height:1.55}
+/* title slide */
+.hero{text-align:center;justify-items:center}
+.hero h1{font-size:clamp(30px,6vw,72px);background:linear-gradient(90deg,var(--sun),var(--pink),var(--mint),var(--sun));background-size:300%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:pop 1s both,flow 5s linear infinite}
+@keyframes flow{to{background-position:300%}}
+.chip{width:150px;height:150px;position:relative;margin:6px 0;animation:pop 1s both,hov 3s ease-in-out infinite 1s}
+@keyframes hov{50%{transform:translateY(-16px) rotate(4deg)}}
+.chip .die{position:absolute;inset:26px;border-radius:14px;background:linear-gradient(135deg,var(--mint),#1aa3ff);display:grid;place-items:center;font:800 22px Unbounded,sans-serif;color:var(--bg);animation:glow 1.4s infinite alternate}
+@keyframes glow{to{box-shadow:0 0 44px var(--mint)}}
+.chip i{position:absolute;width:8px;height:20px;background:var(--sun);border-radius:3px;animation:blink 1.2s infinite}
+.sub{color:var(--mut);font-size:clamp(18px,2.4vw,28px)}
+.type{border-right:3px solid var(--sun);white-space:nowrap;overflow:hidden;display:inline-block;max-width:100%;animation:typing 3s 1s steps(40) both,caret .7s infinite}
+@keyframes typing{from{width:0}to{width:100%}}
+@keyframes caret{50%{border-color:transparent}}
+@keyframes blink{50%{opacity:.2}}
+.who{display:grid;gap:6px;text-align:left;padding:16px 28px;border:3px dashed var(--sun);border-radius:26px 8px 26px 8px;background:var(--card);animation:pop .9s 1.6s cubic-bezier(.2,1.8,.4,1) both,wob 4s 2.5s ease-in-out infinite}
+@keyframes wob{50%{transform:rotate(-1.6deg) scale(1.03)}}
+.who p{font-size:clamp(18px,2.4vw,28px);line-height:1.5;color:var(--ink)}
+.who b{color:var(--sun)}
+/* cores */
+.cores{display:grid;grid-template-columns:repeat(8,1fr);gap:8px;max-width:420px}
+.core{aspect-ratio:1;border-radius:8px;background:#2c2878;animation:pulse 1.6s calc(var(--k)*.09s) infinite}
+@keyframes pulse{0%,100%{background:#2c2878}50%{background:var(--mint);box-shadow:0 0 16px var(--mint);transform:scale(1.12)}}
+/* RAM */
+.ram{display:grid;grid-template-columns:repeat(16,1fr);gap:5px;max-width:520px}
+.ram span{aspect-ratio:1;border-radius:4px;background:#2c2878;transition:background .4s,transform .4s}
+.ram .u{background:var(--pink)}.ram .c{background:var(--sun)}.ram .f{transform:scale(.8)}
+.leg{display:flex;gap:16px;flex-wrap:wrap;font-size:clamp(16px,1.8vw,22px);color:var(--mut)}
+.leg em{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;font-style:normal}
+/* gauges */
+.g{text-align:center}
+.g svg{width:min(150px,34vw);transform:rotate(-90deg);overflow:visible}
+.g circle{fill:none;stroke-width:14;stroke-linecap:round}
+.g .bg{stroke:#2c2878}.g .fg{stroke-dasharray:314;stroke-dashoffset:314;transition:stroke-dashoffset 2s cubic-bezier(.2,1.4,.4,1)}
+.g .n{font:800 clamp(20px,3vw,32px) Unbounded,sans-serif;margin-top:-92px;position:relative;height:92px;display:grid;place-items:center}
+.g small{color:var(--mut);display:block;margin-top:14px;font-weight:700;font-size:clamp(15px,1.8vw,22px)}
+/* terminal */
+.term{background:#0b0a24;border:2px solid var(--mint);border-radius:14px;padding:18px;font:clamp(15px,1.8vw,22px)/1.7 ui-monospace,Menlo,Consolas,monospace;color:var(--mint);min-height:190px;white-space:pre-wrap;box-shadow:0 0 30px rgba(62,240,192,.25)}
+.term .cur{display:inline-block;width:9px;height:16px;background:var(--mint);vertical-align:middle;animation:blink .8s infinite}
+canvas#live{width:100%;height:230px;background:#0b0a24;border:2px solid var(--pink);border-radius:14px}
+.tip{border-left:6px solid var(--sun);padding:6px 0 6px 16px}
+/* nav */
+nav{position:fixed;left:0;right:0;bottom:calc(14px + env(safe-area-inset-bottom,0px));display:flex;justify-content:center;align-items:center;gap:14px;z-index:5}
+nav button{width:46px;height:46px;border-radius:50%;border:2px solid var(--sun);background:rgba(20,18,58,.85);color:var(--sun);font-size:20px;cursor:pointer;transition:transform .2s,background .2s}
+nav button:hover{transform:scale(1.2) rotate(8deg);background:var(--sun);color:var(--bg)}
+nav button:focus-visible{outline:3px solid var(--mint)}
+.dots{display:flex;gap:9px}.dots i{width:11px;height:11px;border-radius:50%;background:#4a45a8;cursor:pointer;transition:.3s}
+.dots i.on{background:var(--pink);transform:scale(1.6);box-shadow:0 0 12px var(--pink)}
+#bar{position:fixed;top:0;left:0;height:5px;width:0;background:linear-gradient(90deg,var(--pink),var(--sun),var(--mint));transition:width .6s;z-index:6}
+.num{position:fixed;right:18px;top:calc(14px + env(safe-area-inset-top,0px));font:800 14px Unbounded,sans-serif;color:var(--mut);z-index:5}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.01s!important;animation-iteration-count:1!important}}
+</style>
+</head>
+<body>
+<canvas id="fx"></canvas><div id="bar"></div><div class="num" id="num">1 / 7</div>
+
+<section class="slide hero active in">
+ <div class="chip"><i style="top:0;left:30px"></i><i style="top:0;left:60px;animation-delay:.3s"></i><i style="top:0;left:90px;animation-delay:.6s"></i><i style="bottom:0;left:30px;animation-delay:.2s"></i><i style="bottom:0;left:60px;animation-delay:.5s"></i><i style="bottom:0;left:90px;animation-delay:.8s"></i><div class="die">CPU</div></div>
+ <h1>Əməli yaddaşın və prosessorun monitorinqi</h1>
+ <p class="sub"><span class="type">Kompüterin ürəyi və yaddaşı necə izlənilir?</span></p>
+ <div class="who"><p><b>Hazırladı:</b> Arif Həsənov</p><p><b>Qrup:</b> 6526a1</p><p><b>Müəllim:</b> Kamran Əbilov</p></div>
+ <p class="sub p" style="--i:8">Keçmək üçün ox düymələrindən, boşluq düyməsindən və ya ekrana toxunuşdan istifadə edin.</p>
+</section>
+
+<section class="slide">
+ <h2>Monitorinq nədir və niyə vacibdir?</h2>
+ <p class="a" style="--i:1">Monitorinq kompüterin resurslarının, yəni prosessorun, əməli yaddaşın, diskin və şəbəkənin vəziyyətinin davamlı şəkildə izlənilməsi, ölçülməsi və təhlil edilməsi prosesidir. Bu proses sayəsində sistemin hazırda necə işlədiyini görür, gələcəkdə hansı problemlərin yarana biləcəyini əvvəlcədən anlaya bilirik.</p>
+ <p class="a" style="--i:2">Əgər monitorinq aparılmırsa, istifadəçi problemi yalnız proqram donduqda, kompüter qəfildən yavaşladıqda və ya tamamilə söndükdə hiss edir. Halbuki düzgün izləmə zamanı prosessorun həddindən artıq yükləndiyini, yaddaşın tükəndiyini və temperaturun təhlükəli həddə yaxınlaşdığını əvvəlcədən görmək olur.</p>
+ <div class="cols">
+  <div class="card p" style="--i:3"><h3>Sürətin qorunması</h3><p>Sistemi yavaşladan proqramları tapıb bağlamaq kompüterin əvvəlki sürətini bərpa edir.</p></div>
+  <div class="card p" style="--i:4"><h3>Xəbərdarlıq</h3><p>Həddindən artıq qızma və ya yaddaş çatışmazlığı kritik xətaya çevrilməmiş aşkarlanır.</p></div>
+  <div class="card p" style="--i:5"><h3>Düzgün planlama</h3><p>Ölçmə nəticələri hansı komponentin yenilənməli olduğunu dəqiq göstərir və pul itkisinin qarşısını alır.</p></div>
+ </div>
+</section>
+
+<section class="slide">
+ <h2>Prosessor (CPU) və onun izlənilməsi</h2>
+ <p class="a" style="--i:1">Prosessor kompüterin əsas hesablama qurğusudur və proqramların verdiyi bütün əmrləri saniyədə milyardlarla dəfə icra edir. Müasir prosessorlar bir neçə nüvədən ibarətdir və hər nüvə ayrıca tapşırığı yerinə yetirə bildiyi üçün bir neçə işi eyni anda aparmaq mümkün olur.</p>
+ <p class="a" style="--i:2">Prosessorun monitorinqində ən çox <b>yüklənmə faizi</b>, <b>takt tezliyi</b>, <b>temperatur</b> və <b>proseslərin sayı</b> izlənilir. Əgər yüklənmə uzun müddət 90 faizdən yuxarı qalırsa, bu, ya ağır proqramın işlədiyini, ya da arxa planda zərərli prosesin resursları sorduğunu göstərir.</p>
+ <div class="cores" aria-label="Prosessor nüvələrinin animasiyası"></div>
+ <p class="a tip" style="--i:3">Yadda saxlayın: yüksək temperatur prosessoru qoruyan mexanizmi işə salır və o, öz tezliyini avtomatik azaldır. Bu hal “thermal throttling” adlanır və kompüterin xeyli yavaşlamasına səbəb olur.</p>
+</section>
+
+<section class="slide">
+ <h2>Əməli yaddaş (RAM) və onun izlənilməsi</h2>
+ <p class="a" style="--i:1">Əməli yaddaş kompüterin müvəqqəti və çox sürətli yaddaşıdır. Hazırda işləyən proqramların və açıq faylların məlumatları prosessorun tez əldə edə bilməsi üçün məhz burada saxlanılır. Kompüter söndürüldükdə RAM-dakı bütün məlumat silinir.</p>
+ <p class="a" style="--i:2">RAM monitorinqində ümumi həcm, istifadə olunan hissə, boş qalan hissə və keş (cache) ayrıca izlənilir. Yaddaş çatışmayanda sistem məlumatı yavaş olan diskdəki mübadilə faylına (swap və ya page file) yazmağa başlayır və bu zaman kompüter hiss olunacaq dərəcədə ləngiyir.</p>
+ <div class="ram" id="ram"></div>
+ <div class="leg"><span><em style="background:var(--pink)"></em>proqramların istifadə etdiyi</span><span><em style="background:var(--sun)"></em>keş</span><span><em style="background:#2c2878"></em>boş</span></div>
+ <p class="a tip" style="--i:3">Xüsusi təhlükə “yaddaş sızması”dır (memory leak): proqram işini bitirdikdən sonra tutduğu yaddaşı qaytarmır və RAM zaman keçdikcə dolur.</p>
+</section>
+
+<section class="slide">
+ <h2>Əsas göstəricilər canlı şəkildə</h2>
+ <p class="a" style="--i:1">Monitorinq alətləri nəticələri rəqəmlərlə və diaqramlarla göstərir. Aşağıdakı nümunədə sağlam işləyən sistemin tipik göstəriciləri təqdim olunur və hər dairə müvafiq resursun nə qədər istifadə edildiyini bildirir.</p>
+ <div class="cols" style="grid-template-columns:repeat(auto-fit,minmax(130px,1fr))">
+  <div class="g p" style="--i:2"><svg viewBox="0 0 120 120"><circle class="bg" cx="60" cy="60" r="50"/><circle class="fg" data-v="42" stroke="#3ef0c0" cx="60" cy="60" r="50"/></svg><div class="n"><span data-to="42">0</span></div><small>Prosessor, %</small></div>
+  <div class="g p" style="--i:3"><svg viewBox="0 0 120 120"><circle class="bg" cx="60" cy="60" r="50"/><circle class="fg" data-v="68" stroke="#ff5d73" cx="60" cy="60" r="50"/></svg><div class="n"><span data-to="68">0</span></div><small>Əməli yaddaş, %</small></div>
+  <div class="g p" style="--i:4"><svg viewBox="0 0 120 120"><circle class="bg" cx="60" cy="60" r="50"/><circle class="fg" data-v="55" stroke="#ffd23f" cx="60" cy="60" r="50"/></svg><div class="n"><span data-to="55">0</span></div><small>Temperatur, °C</small></div>
+  <div class="g p" style="--i:5"><svg viewBox="0 0 120 120"><circle class="bg" cx="60" cy="60" r="50"/><circle class="fg" data-v="12" stroke="#1aa3ff" cx="60" cy="60" r="50"/></svg><div class="n"><span data-to="12">0</span></div><small>Swap istifadəsi, %</small></div>
+ </div>
+ <p class="r" style="--i:6">Normal hesab olunan hədlər: gündəlik işdə prosessor 70 faizdən aşağı, RAM 80 faizdən aşağı, temperatur isə adətən 80 dərəcədən aşağı saxlanılmalıdır. Bu hədləri aşan göstəricilər diqqət tələb edir.</p>
+</section>
+
+<section class="slide">
+ <h2>Monitorinq alətləri</h2>
+ <p class="a" style="--i:1">Hər əməliyyat sisteminin özündə hazır alətlər var. Windows-da <b>Task Manager</b> və <b>Resource Monitor</b>, Linux-da <b>top</b>, <b>htop</b> və <b>free</b>, macOS-da isə <b>Activity Monitor</b> istifadə olunur. Bundan başqa HWMonitor, Core Temp və Grafana kimi alətlər daha ətraflı məlumat verir.</p>
+ <div class="term" id="term" aria-live="off"></div>
+ <p class="r" style="--i:3">Sadə üsul: Windows-da Ctrl + Shift + Esc düymələri ilə Task Manager açılır, “Performance” bölməsində prosessor və yaddaşın qrafikləri real vaxtda görünür, “Processes” bölməsində isə ən çox resurs işlədən proqramı tapmaq olur.</p>
+</section>
+
+<section class="slide">
+ <h2>Nəticə və tövsiyələr</h2>
+ <canvas id="live" width="900" height="230" aria-label="Canlı CPU və RAM qrafiki"></canvas>
+ <div class="leg"><span><em style="background:var(--mint)"></em>prosessor</span><span><em style="background:var(--pink)"></em>əməli yaddaş</span></div>
+ <p class="a" style="--i:1">Prosessorun və əməli yaddaşın monitorinqi kompüterin sağlam və sürətli işləməsinin əsas şərtidir. Davamlı izləmə sayəsində problemlər yaranmamış aşkarlanır, resurslar düzgün bölüşdürülür və cihazın ömrü uzanır.</p>
+ <div class="cols">
+  <div class="card p" style="--i:2"><h3>Müntəzəm yoxlayın</h3><p>Sistem yavaşlayanda ilk növbədə Task Manager-ə baxıb ən çox resurs işlədən prosesi müəyyən edin.</p></div>
+  <div class="card p" style="--i:3"><h3>Lazımsızı bağlayın</h3><p>Açılışda başlayan və arxa planda işləyən artıq proqramları söndürmək resursları azad edir.</p></div>
+  <div class="card p" style="--i:4"><h3>Təmiz saxlayın</h3><p>Soyuducunu tozdan təmizləmək və sistemi yeniləmək temperaturu və yüklənməni azaldır.</p></div>
+ </div>
+</section>
+
+<nav><button id="pv" aria-label="Əvvəlki">◀</button><div class="dots" id="dots"></div><button id="nx" aria-label="Növbəti">▶</button></nav>
+
+<script>
+const S=[...document.querySelectorAll('.slide')],N=S.length;let cur=0,tmr=[];
+const $=s=>document.querySelector(s);
+// build bits
+const cores=$('.cores');for(let i=0;i<32;i++){const d=document.createElement('div');d.className='core';d.style.setProperty('--k',(i*7)%32);cores.appendChild(d)}
+const ram=$('#ram');for(let i=0;i<64;i++)ram.appendChild(document.createElement('span'));
+const dots=$('#dots');S.forEach((_,i)=>{const d=document.createElement('i');d.onclick=()=>go(i);dots.appendChild(d)});
+function clear(){tmr.forEach(t=>clearTimeout(t)||clearInterval(t));tmr=[]}
+function go(n){
+ n=Math.max(0,Math.min(N-1,n));clear();
+ S.forEach((s,i)=>{s.classList.remove('active','in');if(i===n){void s.offsetWidth;s.classList.add('active','in')}});
+ cur=n;$('#num').textContent=(n+1)+' / '+N;$('#bar').style.width=((n+1)/N*100)+'%';
+ [...dots.children].forEach((d,i)=>d.classList.toggle('on',i===n));
+ enter(n);
+}
+function enter(n){
+ const s=S[n];
+ if(n===3){ // RAM fill
+  const c=[...ram.children];c.forEach(x=>x.className='');
+  c.forEach((x,i)=>tmr.push(setTimeout(()=>{x.className=i<30?'u':i<42?'c':''},400+i*35)));
+  tmr.push(setInterval(()=>{const x=c[Math.floor(Math.random()*64)];x.classList.toggle('f')},250));
+ }
+ if(n===4){
+  s.querySelectorAll('.fg').forEach(f=>{f.style.strokeDashoffset=314;tmr.push(setTimeout(()=>f.style.strokeDashoffset=314-314*f.dataset.v/100,500))});
+  s.querySelectorAll('[data-to]').forEach(e=>{const t=+e.dataset.to;let v=0;tmr.push(setInterval(()=>{v=Math.min(t,v+1);e.textContent=v},40))});
+ }
+ if(n===5){
+  const T=$('#term');T.textContent='';
+  const txt='$ top -bn1 | head -5\ntop - 14:32:07 up 3 days, load average: 0.84, 0.71, 0.66\n%Cpu(s): 42.0 us,  6.1 sy,  0.0 ni, 51.2 id\nMiB Mem : 16000.0 total,  5120.4 free, 10880.6 used\n$ free -h   # əməli yaddaşın vəziyyəti\n$ _';
+  let i=0;tmr.push(setInterval(()=>{if(i<=txt.length){T.textContent=txt.slice(0,i++)}},32));
+ }
+ if(n===6)live();
+}
+// live chart
+function live(){
+ const cv=$('#live'),x=cv.getContext('2d'),W=cv.width,H=cv.height,A=[],B=[];let a=40,b=60;
+ for(let i=0;i<90;i++){A.push(a);B.push(b)}
+ const draw=(arr,col)=>{x.beginPath();arr.forEach((v,i)=>{const px=i/(arr.length-1)*W,py=H-v/100*(H-20)-10;i?x.lineTo(px,py):x.moveTo(px,py)});x.strokeStyle=col;x.lineWidth=3;x.shadowColor=col;x.shadowBlur=12;x.stroke();x.shadowBlur=0};
+ tmr.push(setInterval(()=>{
+  a=Math.max(8,Math.min(95,a+(Math.random()-.5)*26));b=Math.max(30,Math.min(92,b+(Math.random()-.45)*7));
+  A.push(a);A.shift();B.push(b);B.shift();x.clearRect(0,0,W,H);
+  x.strokeStyle='rgba(255,255,255,.08)';x.lineWidth=1;for(let g=1;g<5;g++){x.beginPath();x.moveTo(0,g*H/5);x.lineTo(W,g*H/5);x.stroke()}
+  draw(A,'#3ef0c0');draw(B,'#ff5d73');
+ },120));
+}
+// background particles
+(function(){const c=$('#fx'),x=c.getContext('2d');let w,h,P=[];
+ const rs=()=>{w=c.width=innerWidth;h=c.height=innerHeight};rs();addEventListener('resize',rs);
+ for(let i=0;i<46;i++)P.push({x:Math.random()*w,y:Math.random()*h,v:.4+Math.random()*1.4,t:Math.random()<.5?'0':'1',s:12+Math.random()*14});
+ (function f(){x.clearRect(0,0,w,h);P.forEach(p=>{p.y+=p.v;if(p.y>h){p.y=-20;p.x=Math.random()*w}x.font=p.s+'px monospace';x.fillStyle=p.t==='1'?'#3ef0c0':'#ffd23f';x.fillText(p.t,p.x,p.y)});requestAnimationFrame(f)})();
+})();
+// controls
+$('#pv').onclick=()=>go(cur-1);$('#nx').onclick=()=>go(cur+1);
+addEventListener('keydown',e=>{if(['ArrowRight',' ','PageDown'].includes(e.key)){e.preventDefault();go(cur+1)}if(['ArrowLeft','PageUp'].includes(e.key))go(cur-1)});
+let sx=0;addEventListener('touchstart',e=>sx=e.touches[0].clientX,{passive:true});
+addEventListener('touchend',e=>{const d=e.changedTouches[0].clientX-sx;if(Math.abs(d)>60)go(cur+(d<0?1:-1))},{passive:true});
+go(0);
+</script>
+</body>
+</html>
